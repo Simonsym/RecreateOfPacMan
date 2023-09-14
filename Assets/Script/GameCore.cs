@@ -16,6 +16,12 @@ public class GameCore : MonoBehaviour
     Tilemap gameTileMap;
     Grid gameGrid;
     AudioClip backgroundSound;
+    Vector2Int ghostPosition = new Vector2Int(0, 0);
+
+    public GameObject PowerPelletPrefab;
+    public GameObject GhostPrefab;
+    public GameObject NormalPelletPrefab;
+
 
     void PlayIntroSound() {
         backgroundSound = Resources.Load<AudioClip>(GAME_BACKGROUND);
@@ -134,8 +140,26 @@ public class GameCore : MonoBehaviour
         return new Vector3(x * 0.3f + 0.15f, y * 0.3f + 0.15f, -1);
     }
 
-
     public Animator pacAnimator;
+
+    void delegateOfILevelGenerator(string type, Vector2 position) {
+        switch(type) {
+            case "normal_pellet": {
+                Instantiate(NormalPelletPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
+                break;
+            }
+            case "power_pellet": {
+                Instantiate(PowerPelletPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
+                break;
+            }
+            default: {
+                Debug.Log("[+] " + type + " - " + position);
+                break;
+            }
+        }
+
+
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -146,15 +170,25 @@ public class GameCore : MonoBehaviour
         PlayIntroSound();
         putPacStudent();
 
-        currentDirection = 'R';
+        currentDirection = ' ';
 
         pacAnimator = PacStudent.GetComponent<Animator>();
+
+        if(Config.ENABLE_NEW_LEVEL_GENERATOR) {
+
+        }
+        else {
+            Invoke("ClassicLevelGenerator_instance_GeneratorMap", 0.1f);
+        }
+
+
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // PacStudent.transform.position = new Vector3(-12 * 0.3f + 0.15f, 12 * 0.3f + 0.15f, -1);
+    void ClassicLevelGenerator_instance_GeneratorMap() {
+        ClassicLevelGenerator.instance.GeneratorMap(delegateOfILevelGenerator);
+    }
+
+    void runCircle() {
         var cellPosition = coordinateReverseMapping(currentX, currentY);
 
         if(cellPosition.x == 6 && cellPosition.y == 1) {
@@ -169,6 +203,14 @@ public class GameCore : MonoBehaviour
         if(cellPosition.x == 0 && cellPosition.y == 1) {
             currentDirection = 'R';
         }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        // PacStudent.transform.position = new Vector3(-12 * 0.3f + 0.15f, 12 * 0.3f + 0.15f, -1);
+        var cellPosition = coordinateReverseMapping(currentX, currentY);
+
 
     }
 

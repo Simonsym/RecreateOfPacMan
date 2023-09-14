@@ -608,6 +608,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9e4d2ffb89c42b4e9b2b4100c5dc01f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PowerPelletPrefab: {fileID: 5218071363518784997, guid: 1a84dd307bbaa6c4989c8c4775e8566b, type: 3}
+  GhostPrefab: {fileID: 4405645920534855035, guid: b02dc821ff95cb84f9b513dd207c1ce2, type: 3}
+  NormalPelletPrefab: {fileID: 6042104812971594948, guid: c788f5596b3e0194aba142d77fb77326, type: 3}
+  currentX: 1
+  currentY: 1
+  pacAnimator: {fileID: 0}
 --- !u!114 &1381497500
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Tilemaps;
 
-public class LevelGenerator : MonoBehaviour
+public class LevelGenerator : MonoBehaviour, ILevelGenerator
 {
 
     static readonly string TILE_PATH_BASE = "Tile/";
@@ -42,10 +42,16 @@ public class LevelGenerator : MonoBehaviour
         return new Vector2Int(x - 14, 14 - y);
     }
 
+    public static LevelGenerator instance;
 
     // Start is called before the first frame update
     void Start()
     {
+        instance = this;
+
+        return;
+
+
         if(!Config.ENABLE_NEW_LEVEL_GENERATOR) {
             return ;
         }
@@ -129,5 +135,10 @@ public class LevelGenerator : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void GeneratorMap(ILevelGenerator.PutElement callback)
+    {
+        throw new NotImplementedException();
     }
 }

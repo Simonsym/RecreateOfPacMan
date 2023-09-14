@@ -5,7 +5,7 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class ClassicLevelGenerator : MonoBehaviour
+public class ClassicLevelGenerator : MonoBehaviour, ILevelGenerator
 {
 
     static readonly string TILE_PATH_BASE = "Tile/";
@@ -123,8 +123,21 @@ public class ClassicLevelGenerator : MonoBehaviour
         return new Vector2Int(x - 14, 14 - y);
     }
 
+    public static ClassicLevelGenerator instance;
+
     // Start is called before the first frame update
     void Start()
+    {
+        instance = this;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void GeneratorMap(ILevelGenerator.PutElement callback)
     {
         if(Config.ENABLE_NEW_LEVEL_GENERATOR) {
             return ;
@@ -147,6 +160,16 @@ public class ClassicLevelGenerator : MonoBehaviour
                 var newCoordinate = coordinateMapping(c, r);
                 var tileValue = extendedLevelMap[r, c];
                 var tile = GetTileByIndex(tileValue);
+
+                if(TILE_MAPPING[tileValue].EndsWith("_pellet")) {
+                    if(callback != null) {
+                        var globalCoordinate = gameTileMap.CellToWorld(new Vector3Int(newCoordinate.x, newCoordinate.y, 0));
+                        callback(TILE_MAPPING[tileValue], new Vector2(globalCoordinate.x + 0.15f, globalCoordinate.y + 0.15f));
+                        tile = GetTileByIndex(0);
+                    }
+                }
+
+                
 
                 gameTileMap.SetTile(new Vector3Int(newCoordinate.x, newCoordinate.y, 0), tile);
 
@@ -176,12 +199,5 @@ public class ClassicLevelGenerator : MonoBehaviour
 
             }
         }
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
