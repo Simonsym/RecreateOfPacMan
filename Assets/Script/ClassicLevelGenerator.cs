@@ -160,6 +160,7 @@ public class ClassicLevelGenerator : MonoBehaviour, ILevelGenerator
                 var newCoordinate = coordinateMapping(c, r);
                 var tileValue = extendedLevelMap[r, c];
                 var tile = GetTileByIndex(tileValue);
+                var tileType = TILE_MAPPING[tileValue];
 
                 if(TILE_MAPPING[tileValue].EndsWith("_pellet")) {
                     if(callback != null) {
