@@ -22,6 +22,47 @@ public class GameCore : MonoBehaviour
     public GameObject GhostPrefab;
     public GameObject NormalPelletPrefab;
 
+    public GameObject GhostR;
+    public GameObject GhostG;
+    public GameObject GhostB;
+    public GameObject GhostY;
+
+    
+    public DateTime startTime { get; set; }
+    public int score { get; set; }
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        startTime = DateTime.Now;
+        score = 0;
+
+        gameTileMap = GameObject.Find("GameTilemap").GetComponent<Tilemap>();
+        gameGrid = GameObject.Find("GameGrid").GetComponent<Grid>();
+
+        PlayIntroSound();
+        putPacStudent();
+
+        currentDirection = ' ';
+
+        pacAnimator = PacStudent.GetComponent<Animator>();
+
+        if(Config.ENABLE_NEW_LEVEL_GENERATOR) {
+
+        }
+        else {
+            Invoke("ClassicLevelGenerator_instance_GeneratorMap", 0.1f);
+        }
+
+        GhostR.transform.position = new Vector3(-0.75f, 0.45f, 0.0f);
+        GhostG.transform.position = new Vector3(-0.45f, 0.45f, 0.0f);
+        GhostB.transform.position = new Vector3(-0.15f, 0.45f, 0.0f);
+        GhostY.transform.position = new Vector3( 0.15f, 0.45f, 0.0f);
+
+
+
+    }
 
     void PlayIntroSound() {
         backgroundSound = Resources.Load<AudioClip>(GAME_BACKGROUND);
@@ -161,28 +202,7 @@ public class GameCore : MonoBehaviour
 
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        gameTileMap = GameObject.Find("GameTilemap").GetComponent<Tilemap>();
-        gameGrid = GameObject.Find("GameGrid").GetComponent<Grid>();
 
-        PlayIntroSound();
-        putPacStudent();
-
-        currentDirection = ' ';
-
-        pacAnimator = PacStudent.GetComponent<Animator>();
-
-        if(Config.ENABLE_NEW_LEVEL_GENERATOR) {
-
-        }
-        else {
-            Invoke("ClassicLevelGenerator_instance_GeneratorMap", 0.1f);
-        }
-
-
-    }
 
     void ClassicLevelGenerator_instance_GeneratorMap() {
         ClassicLevelGenerator.instance.GeneratorMap(delegateOfILevelGenerator);
@@ -241,7 +261,7 @@ public class GameCore : MonoBehaviour
         }
         
         var newPos = getPos(currentX, currentY);
-        PacStudent.transform.position = new Vector3(newPos.x, newPos.y, -1);
+        PacStudent.transform.position = new Vector3(newPos.x, newPos.y, 0);
 
     }
 

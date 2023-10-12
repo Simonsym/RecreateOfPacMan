@@ -16,9 +16,9 @@ public class ColliderHandler : MonoBehaviour
         
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("OnTriggerEnter()");
+        Debug.Log("OnTriggerEnter2D()");
     }
 
 }
