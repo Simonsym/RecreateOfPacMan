@@ -38,10 +38,10 @@ public class PacStudentController : MonoBehaviour
         // PacStudent.transform.position = new Vector3(-12 * 0.3f + 0.15f, 12 * 0.3f + 0.15f, -1);
         // var cellPosition = coordinateReverseMapping(currentX, currentY);
 
-        if ( Input.GetKey("up")) {  currentDirection = 'U';  }
-        if ( Input.GetKey("down")) {  currentDirection = 'D';  }
-        if ( Input.GetKey("left")) {  currentDirection = 'L';  }
-        if ( Input.GetKey("right")) {  currentDirection = 'R';  }
+        if ( Input.GetKey("w")) {  currentDirection = 'U';  }
+        if ( Input.GetKey("s")) {  currentDirection = 'D';  }
+        if ( Input.GetKey("a")) {  currentDirection = 'L';  }
+        if ( Input.GetKey("d")) {  currentDirection = 'R';  }
 
     }
 
