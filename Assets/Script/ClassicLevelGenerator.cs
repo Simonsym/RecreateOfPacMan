@@ -12,6 +12,22 @@ public class ClassicLevelGenerator : MonoBehaviour, ILevelGenerator
 
     readonly string[] TILE_MAPPING = {"empty", "outside_corner", "outside_wall", "inside_corner", "inside_wall", "normal_pellet", "power_pellet", "t"};
 
+
+    public GameObject p_bonus_score_cherry;
+    public GameObject p_empty;
+    public GameObject p_Ghost;
+    public GameObject p_inside_corner;
+    public GameObject p_inside_wall;
+    public GameObject p_life_indicator;
+    public GameObject p_NormalPellet;
+    public GameObject p_outside_corner;
+    public GameObject p_outside_wall;
+    public GameObject p_PowerPellet;
+    public GameObject p_t;
+
+    public Dictionary<string, GameObject> prefabMapping;
+
+
     Tilemap gameTileMap;
     Grid gameGrid;
 
@@ -129,6 +145,22 @@ public class ClassicLevelGenerator : MonoBehaviour, ILevelGenerator
     void Start()
     {
         instance = this;
+        prefabMapping = new Dictionary<string, GameObject>
+        {
+            { "bonus_score_cherry", p_bonus_score_cherry },
+            { "empty", p_empty },
+            { "Ghost", p_Ghost },
+            { "inside_corner", p_inside_corner },
+            { "inside_wall", p_inside_wall },
+            { "life_indicator", p_life_indicator },
+            { "NormalPellet", p_NormalPellet },
+            { "normal_pellet", p_NormalPellet },
+            { "outside_corner", p_outside_corner },
+            { "outside_wall", p_outside_wall },
+            { "PowerPellet", p_PowerPellet },
+            { "power_pellet", p_PowerPellet },
+            { "t", p_t }
+        };
     }
 
     // Update is called once per frame
@@ -160,18 +192,25 @@ public class ClassicLevelGenerator : MonoBehaviour, ILevelGenerator
                 var newCoordinate = coordinateMapping(c, r);
                 var tileValue = extendedLevelMap[r, c];
                 var tile = GetTileByIndex(tileValue);
+                var tileType = TILE_MAPPING[tileValue];
+
+                var globalCoordinate = gameTileMap.CellToWorld(new Vector3Int(newCoordinate.x, newCoordinate.y, 0));
 
                 if(TILE_MAPPING[tileValue].EndsWith("_pellet")) {
                     if(callback != null) {
-                        var globalCoordinate = gameTileMap.CellToWorld(new Vector3Int(newCoordinate.x, newCoordinate.y, 0));
+                        
                         callback(TILE_MAPPING[tileValue], new Vector2(globalCoordinate.x + 0.15f, globalCoordinate.y + 0.15f));
                         tile = GetTileByIndex(0);
                     }
                 }
 
                 
+                Debug.Log("Put tile: " + new Vector3(newCoordinate.x, newCoordinate.y, 0) + " $ " + globalCoordinate);
 
-                gameTileMap.SetTile(new Vector3Int(newCoordinate.x, newCoordinate.y, 0), tile);
+                GameObject go = Instantiate(prefabMapping[TILE_MAPPING[tileValue]], new Vector3(globalCoordinate.x + 0.15f, globalCoordinate.y + 0.15f, 0), Quaternion.identity);
+                // go.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+
+                // gameTileMap.SetTile(new Vector3Int(newCoordinate.x, newCoordinate.y, 0), tile);
 
 
                 Matrix4x4 matrix;

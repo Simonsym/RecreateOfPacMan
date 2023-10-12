@@ -22,6 +22,47 @@ public class GameCore : MonoBehaviour
     public GameObject GhostPrefab;
     public GameObject NormalPelletPrefab;
 
+    public GameObject GhostR;
+    public GameObject GhostG;
+    public GameObject GhostB;
+    public GameObject GhostY;
+
+    
+    public DateTime startTime { get; set; }
+    public int score { get; set; }
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        startTime = DateTime.Now;
+        score = 0;
+
+        gameTileMap = GameObject.Find("GameTilemap").GetComponent<Tilemap>();
+        gameGrid = GameObject.Find("GameGrid").GetComponent<Grid>();
+
+        PlayIntroSound();
+        putPacStudent();
+
+        currentDirection = ' ';
+
+        pacAnimator = PacStudent.GetComponent<Animator>();
+
+        if(Config.ENABLE_NEW_LEVEL_GENERATOR) {
+
+        }
+        else {
+            Invoke("ClassicLevelGenerator_instance_GeneratorMap", 0.1f);
+        }
+
+        GhostR.transform.position = new Vector3(-0.75f, 0.45f, 0.0f);
+        GhostG.transform.position = new Vector3(-0.45f, 0.45f, 0.0f);
+        GhostB.transform.position = new Vector3(-0.15f, 0.45f, 0.0f);
+        GhostY.transform.position = new Vector3( 0.15f, 0.45f, 0.0f);
+
+
+
+    }
 
     void PlayIntroSound() {
         backgroundSound = Resources.Load<AudioClip>(GAME_BACKGROUND);
@@ -161,28 +202,7 @@ public class GameCore : MonoBehaviour
 
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        gameTileMap = GameObject.Find("GameTilemap").GetComponent<Tilemap>();
-        gameGrid = GameObject.Find("GameGrid").GetComponent<Grid>();
 
-        PlayIntroSound();
-        putPacStudent();
-
-        currentDirection = ' ';
-
-        pacAnimator = PacStudent.GetComponent<Animator>();
-
-        if(Config.ENABLE_NEW_LEVEL_GENERATOR) {
-
-        }
-        else {
-            Invoke("ClassicLevelGenerator_instance_GeneratorMap", 0.1f);
-        }
-
-
-    }
 
     void ClassicLevelGenerator_instance_GeneratorMap() {
         ClassicLevelGenerator.instance.GeneratorMap(delegateOfILevelGenerator);
@@ -209,33 +229,39 @@ public class GameCore : MonoBehaviour
     void Update()
     {
         // PacStudent.transform.position = new Vector3(-12 * 0.3f + 0.15f, 12 * 0.3f + 0.15f, -1);
-        var cellPosition = coordinateReverseMapping(currentX, currentY);
+        // var cellPosition = coordinateReverseMapping(currentX, currentY);
 
+        if ( Input.GetKey("up")) {  currentDirection = 'U';  }
+        if ( Input.GetKey("down")) {  currentDirection = 'D';  }
+        if ( Input.GetKey("left")) {  currentDirection = 'L';  }
+        if ( Input.GetKey("right")) {  currentDirection = 'R';  }
 
     }
 
     float PLAYER_MOVE_SPEED = 0.07f;
 
+    float MOVE_SPEED_MAGNIFICATION = 4.2f;
+
     void FixedUpdate() {
         switch(currentDirection) {
             case 'L':
-                currentX -= PLAYER_MOVE_SPEED;
+                currentX -= (float)(MOVE_SPEED_MAGNIFICATION * Time.deltaTime);
                 break;
             case 'R':
-                currentX += PLAYER_MOVE_SPEED;
+                currentX += (float)(MOVE_SPEED_MAGNIFICATION * Time.deltaTime);
                 break;
             case 'U':
-                currentY += PLAYER_MOVE_SPEED;
+                currentY += (float)(MOVE_SPEED_MAGNIFICATION * Time.deltaTime);
                 break;
             case 'D':
-                currentY -= PLAYER_MOVE_SPEED;
+                currentY -= (float)(MOVE_SPEED_MAGNIFICATION * Time.deltaTime);
                 break;
             default:
                 break;
         }
         
         var newPos = getPos(currentX, currentY);
-        PacStudent.transform.position = new Vector3(newPos.x, newPos.y, -1);
+        PacStudent.transform.position = new Vector3(newPos.x, newPos.y, 0);
 
     }
 
