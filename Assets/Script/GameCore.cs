@@ -28,6 +28,8 @@ public class GameCore : MonoBehaviour
     public GameObject GhostY;
 
     
+    GameObject PacStudent;
+
     public DateTime startTime { get; set; }
     public int score { get; set; }
 
@@ -44,9 +46,6 @@ public class GameCore : MonoBehaviour
         PlayIntroSound();
         putPacStudent();
 
-        currentDirection = ' ';
-
-        pacAnimator = PacStudent.GetComponent<Animator>();
 
         if(Config.ENABLE_NEW_LEVEL_GENERATOR) {
 
@@ -61,6 +60,12 @@ public class GameCore : MonoBehaviour
         GhostY.transform.position = new Vector3( 0.15f, 0.45f, 0.0f);
 
 
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
 
     }
 
@@ -81,31 +86,6 @@ public class GameCore : MonoBehaviour
         backgroundPlayer.Play(0);
 
     }
-
-    char priv_currentDirection = 'R';
-    char lastDirection = 'R';
-
-    public char currentDirection { 
-        get {
-            return priv_currentDirection; 
-        } 
-        set {
-            if(pacAnimator != null) {
-                switch(value) {
-                    case 'U': pacAnimator.Play("Direction Layer.DirectionUp"); break;
-                    case 'D': pacAnimator.Play("Direction Layer.DirectionDown"); break;
-                    case 'L': pacAnimator.Play("Direction Layer.DirectionLeft"); break;
-                    case 'R': pacAnimator.Play("Direction Layer.DirectionRight"); break;
-                    default: break;
-                }
-            }
-
-            priv_currentDirection = value;
-
-        }
-    }
-    public float currentX = 1;
-    public float currentY = 1;
 
     int[,] getLevelMap() {
         int[,] levelMap = {
@@ -132,15 +112,6 @@ public class GameCore : MonoBehaviour
     Vector2Int coordinateMapping(int x, int y) {
         return new Vector2Int(x - 14, 14 - y);
     }
-
-    Vector2Int coordinateReverseMapping(float x, float y) {
-        int ix = (int)Math.Floor(x);
-        int iy = (int)Math.Floor(y);
-
-        return new Vector2Int(ix + 14, 14 - iy);
-    }
-
-    GameObject PacStudent;
 
     void putPacStudent() {
         List<int> availableType = new List<int>() {0, 5, 6};
@@ -172,16 +143,11 @@ public class GameCore : MonoBehaviour
         PacStudent = GameObject.Find("go_pac_student");
         var availablePair = coordinateMapping(availableX, availableY);
 
-        currentX = availablePair.x;
-        currentY = availablePair.y;
+        PacStudentController pacStudentController = PacStudent.GetComponent<PacStudentController>();
+        pacStudentController.currentX = availablePair.x;
+        pacStudentController.currentY = availablePair.y;
 
     }
-
-    Vector3 getPos(float x, float y) {
-        return new Vector3(x * 0.3f + 0.15f, y * 0.3f + 0.15f, -1);
-    }
-
-    public Animator pacAnimator;
 
     void delegateOfILevelGenerator(string type, Vector2 position) {
         switch(type) {
@@ -199,71 +165,10 @@ public class GameCore : MonoBehaviour
             }
         }
 
-
     }
-
-
 
     void ClassicLevelGenerator_instance_GeneratorMap() {
         ClassicLevelGenerator.instance.GeneratorMap(delegateOfILevelGenerator);
     }
-
-    void runCircle() {
-        var cellPosition = coordinateReverseMapping(currentX, currentY);
-
-        if(cellPosition.x == 6 && cellPosition.y == 1) {
-            currentDirection = 'D';
-        }
-        if(cellPosition.x == 6 && cellPosition.y == 6) {
-            currentDirection = 'L';
-        }
-        if(cellPosition.x == 0 && cellPosition.y == 6) {
-            currentDirection = 'U';
-        }
-        if(cellPosition.x == 0 && cellPosition.y == 1) {
-            currentDirection = 'R';
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        // PacStudent.transform.position = new Vector3(-12 * 0.3f + 0.15f, 12 * 0.3f + 0.15f, -1);
-        // var cellPosition = coordinateReverseMapping(currentX, currentY);
-
-        if ( Input.GetKey("up")) {  currentDirection = 'U';  }
-        if ( Input.GetKey("down")) {  currentDirection = 'D';  }
-        if ( Input.GetKey("left")) {  currentDirection = 'L';  }
-        if ( Input.GetKey("right")) {  currentDirection = 'R';  }
-
-    }
-
-    float PLAYER_MOVE_SPEED = 0.07f;
-
-    float MOVE_SPEED_MAGNIFICATION = 4.2f;
-
-    void FixedUpdate() {
-        switch(currentDirection) {
-            case 'L':
-                currentX -= (float)(MOVE_SPEED_MAGNIFICATION * Time.deltaTime);
-                break;
-            case 'R':
-                currentX += (float)(MOVE_SPEED_MAGNIFICATION * Time.deltaTime);
-                break;
-            case 'U':
-                currentY += (float)(MOVE_SPEED_MAGNIFICATION * Time.deltaTime);
-                break;
-            case 'D':
-                currentY -= (float)(MOVE_SPEED_MAGNIFICATION * Time.deltaTime);
-                break;
-            default:
-                break;
-        }
-        
-        var newPos = getPos(currentX, currentY);
-        PacStudent.transform.position = new Vector3(newPos.x, newPos.y, 0);
-
-    }
-
 
 }

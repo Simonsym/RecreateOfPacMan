@@ -2118,6 +2118,7 @@ GameObject:
   - component: {fileID: 1086904142}
   - component: {fileID: 1086904139}
   - component: {fileID: 1086904141}
+  - component: {fileID: 1086904143}
   m_Layer: 0
   m_Name: go_pac_student
   m_TagString: Untagged
@@ -2297,6 +2298,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &1086904143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1086904135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c88586c6e6407b34d8ef74a4646fcb29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentX: 1
+  currentY: 1
+  PacStudent: {fileID: 1086904135}
 --- !u!1 &1150040664 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4405645920534855035, guid: b02dc821ff95cb84f9b513dd207c1ce2, type: 3}
