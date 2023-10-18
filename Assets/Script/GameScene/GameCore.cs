@@ -47,7 +47,7 @@ public class GameCore : MonoBehaviour
 
 
 
-        Invoke("ClassicLevelGenerator_instance_GeneratorMap", 0.1f);
+        Invoke("LevelGenerator_instance_GeneratorMap", 0.1f);
         
 
         GhostR.transform.position = new Vector3(-0.75f, 0.45f, 0.0f);
@@ -84,11 +84,11 @@ public class GameCore : MonoBehaviour
     }
 
     public int[,] getLevelMap() {
-        return ClassicLevelGenerator.instance.getLevelMap();
+        return LevelGenerator.instance.getLevelMap();
     }
 
     public int[,] getExtendedLevelMap() {
-        return ClassicLevelGenerator.instance.getExtendedLevelMap();
+        return LevelGenerator.instance.getExtendedLevelMap();
     }
  
     Vector2Int coordinateMapping(int x, int y) {
@@ -150,8 +150,8 @@ public class GameCore : MonoBehaviour
 
     }
 
-    void ClassicLevelGenerator_instance_GeneratorMap() {
-        ClassicLevelGenerator.instance.GeneratorMap(delegateOfILevelGenerator);
+    void LevelGenerator_instance_GeneratorMap() {
+        LevelGenerator.instance.GeneratorMap(delegateOfILevelGenerator);
     }
 
 }

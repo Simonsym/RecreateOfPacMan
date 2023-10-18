@@ -5,7 +5,7 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class ClassicLevelGenerator : MonoBehaviour
+public class LevelGenerator : MonoBehaviour
 {
 
     static readonly string TILE_PATH_BASE = "Tile/";
@@ -147,7 +147,7 @@ public class ClassicLevelGenerator : MonoBehaviour
         return new Vector2Int(x - 14, 14 - y);
     }
 
-    public static ClassicLevelGenerator instance;
+    public static LevelGenerator instance;
 
     // Start is called before the first frame update
     void Start()
