@@ -27,7 +27,6 @@ public class GameCore : MonoBehaviour
     public GameObject GhostB;
     public GameObject GhostY;
 
-    
     GameObject PacStudent;
 
     public DateTime startTime { get; set; }
@@ -87,28 +86,14 @@ public class GameCore : MonoBehaviour
 
     }
 
-    int[,] getLevelMap() {
-        int[,] levelMap = {
-            {1,2,2,2,2,2,2,2,2,2,2,2,2,7},
-            {2,5,5,5,5,5,5,5,5,5,5,5,5,4},
-            {2,5,3,4,4,3,5,3,4,4,4,3,5,4},
-            {2,6,4,0,0,4,5,4,0,0,0,4,5,4},
-            {2,5,3,4,4,3,5,3,4,4,4,3,5,3},
-            {2,5,5,5,5,5,5,5,5,5,5,5,5,5},
-            {2,5,3,4,4,3,5,3,3,5,3,4,4,4},
-            {2,5,3,4,4,3,5,4,4,5,3,4,4,3},
-            {2,5,5,5,5,5,5,4,4,5,5,5,5,4},
-            {1,2,2,2,2,1,5,4,3,4,4,3,0,4},
-            {0,0,0,0,0,2,5,4,3,4,4,3,0,3},
-            {0,0,0,0,0,2,5,4,4,0,0,0,0,0},
-            {0,0,0,0,0,2,5,4,4,0,3,4,4,0},
-            {2,2,2,2,2,1,5,3,3,0,4,0,0,0},
-            {0,0,0,0,0,0,5,0,0,0,4,0,0,0},
-        };
-
-        return levelMap;
+    public int[,] getLevelMap() {
+        return ClassicLevelGenerator.instance.getLevelMap();
     }
 
+    public int[,] getExtendedLevelMap() {
+        return ClassicLevelGenerator.instance.getExtendedLevelMap();
+    }
+ 
     Vector2Int coordinateMapping(int x, int y) {
         return new Vector2Int(x - 14, 14 - y);
     }
@@ -144,8 +129,9 @@ public class GameCore : MonoBehaviour
         var availablePair = coordinateMapping(availableX, availableY);
 
         PacStudentController pacStudentController = PacStudent.GetComponent<PacStudentController>();
-        pacStudentController.currentX = availablePair.x;
-        pacStudentController.currentY = availablePair.y;
+
+        pacStudentController.setupCurrentBoardPosition(availablePair.x, availablePair.y);
+
 
     }
 

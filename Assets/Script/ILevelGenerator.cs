@@ -8,5 +8,9 @@ public interface ILevelGenerator
 
     void GeneratorMap(PutElement callback);
 
+    int[,] getLevelMap();
+
+    int[,] getExtendedLevelMap();
+    
 
 }

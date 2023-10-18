@@ -2310,9 +2310,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c88586c6e6407b34d8ef74a4646fcb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  priv_lastInput: 100
   currentX: 1
   currentY: 1
   PacStudent: {fileID: 1086904135}
+  gameCore: {fileID: 1381497496}
+  targetX: 1
+  targetY: 1
 --- !u!1 &1150040664 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4405645920534855035, guid: b02dc821ff95cb84f9b513dd207c1ce2, type: 3}
@@ -2685,9 +2689,6 @@ MonoBehaviour:
   GhostG: {fileID: 1039202367}
   GhostB: {fileID: 1351209413}
   GhostY: {fileID: 1150040664}
-  currentX: 1
-  currentY: 1
-  pacAnimator: {fileID: 0}
 --- !u!114 &1381497500
 MonoBehaviour:
   m_ObjectHideFlags: 0

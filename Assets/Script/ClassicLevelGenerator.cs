@@ -49,6 +49,10 @@ public class ClassicLevelGenerator : MonoBehaviour, ILevelGenerator
         {0,0,0,0,0,0,5,0,0,0,4,0,0,0},
     };
 
+    public int[,] getLevelMap() {
+        return levelMap;
+    }
+
     int[,] extendedLevelMap = new int[30, 28];
 
     int[,] rotateMap = {
@@ -72,6 +76,10 @@ public class ClassicLevelGenerator : MonoBehaviour, ILevelGenerator
     int[,] extendedRotateMap = new int[30, 28];
 
     int [] rotateIndex = {360, 90, 180, 270};
+
+    public int[,] getExtendedLevelMap() {
+        return extendedLevelMap;
+    }
 
     Dictionary<int, int> flipMapping = new Dictionary<int, int> {
         {0, 2},
@@ -205,7 +213,7 @@ public class ClassicLevelGenerator : MonoBehaviour, ILevelGenerator
                 }
 
                 
-                Debug.Log("Put tile: " + new Vector3(newCoordinate.x, newCoordinate.y, 0) + " $ " + globalCoordinate);
+                // Debug.Log("Put tile: " + new Vector3(newCoordinate.x, newCoordinate.y, 0) + " $ " + globalCoordinate);
 
                 GameObject go = Instantiate(prefabMapping[TILE_MAPPING[tileValue]], new Vector3(globalCoordinate.x + 0.15f, globalCoordinate.y + 0.15f, 0), Quaternion.identity);
                 // go.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);

@@ -34,6 +34,15 @@ public class LevelGenerator : MonoBehaviour, ILevelGenerator
         {0,0,0,0,0,0,5,0,0,0,4,0,0,0},
     };
 
+    public int[,] getLevelMap() {
+        return levelMap;
+    }
+
+    public int[,] getExtendedLevelMap() {
+        return extendedLevelMap;
+    }
+
+
     InferableTile[,] inferableMap;
 
     int[,] extendedLevelMap = new int[30, 28];
@@ -141,4 +150,6 @@ public class LevelGenerator : MonoBehaviour, ILevelGenerator
     {
         throw new NotImplementedException();
     }
+
+
 }
