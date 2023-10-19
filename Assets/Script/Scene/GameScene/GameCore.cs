@@ -78,7 +78,7 @@ public class GameCore : MonoBehaviour
     }
 
     Vector2Int coordinateMapping(int x, int y) {
-        return new Vector2Int(x - 14, 14 - y);
+        return new Vector2Int(x, -y);
     }
 
     void putPacStudent() {
