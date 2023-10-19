@@ -16,8 +16,6 @@ public class GameCore : MonoBehaviour
     Tilemap gameTileMap;
     Grid gameGrid;
     AudioClip backgroundSound;
-    Vector2Int ghostPosition = new Vector2Int(0, 0);
-
     public GameObject PowerPelletPrefab;
     public GameObject GhostPrefab;
     public GameObject NormalPelletPrefab;
@@ -29,7 +27,7 @@ public class GameCore : MonoBehaviour
 
     GameObject PacStudent;
 
-    public DateTime startTime { get; set; }
+    public float startTime { get; set; }
     public int score { get; set; }
 
     LevelGenerator levelGeneratorScript;
@@ -38,7 +36,7 @@ public class GameCore : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        startTime = DateTime.Now;
+        startTime = Time.time;
         score = 0;
 
         gameTileMap = GameObject.Find("GameTilemap").GetComponent<Tilemap>();
@@ -47,19 +45,14 @@ public class GameCore : MonoBehaviour
         levelGeneratorScript = GetComponentInParent<LevelGenerator>();
 
         PlayIntroSound();
-        putPacStudent();
-
-
-
-        Invoke("LevelGenerator_instance_GeneratorMap", 0.1f);
         
+        Invoke("LevelGenerator_instance_GeneratorMap", 0.01f);
+        Invoke("putPacStudent", 0.02f);
 
         GhostR.transform.position = new Vector3(-0.75f, 0.45f, 0.0f);
         GhostG.transform.position = new Vector3(-0.45f, 0.45f, 0.0f);
         GhostB.transform.position = new Vector3(-0.15f, 0.45f, 0.0f);
         GhostY.transform.position = new Vector3( 0.15f, 0.45f, 0.0f);
-
-
 
     }
 
@@ -96,7 +89,7 @@ public class GameCore : MonoBehaviour
         
         for(int r = 0; r < 15; r++) {
             for(int c = 0; c < 14; c++) {
-                var tileInfo = levelGeneratorScript.queryTileInfo(r, c);
+                var tileInfo = levelGeneratorScript.queryTileInfo(c, r);
                 if(availableType.Contains(tileInfo.tileType)) {
                     availableX = c;
                     availableY = r;
@@ -141,7 +134,7 @@ public class GameCore : MonoBehaviour
     }
 
     void LevelGenerator_instance_GeneratorMap() {
-        LevelGenerator.instance.GeneratorMap(delegateOfILevelGenerator);
+        levelGeneratorScript.GeneratorMap(delegateOfILevelGenerator);
     }
 
 }

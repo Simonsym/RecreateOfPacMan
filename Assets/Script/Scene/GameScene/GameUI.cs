@@ -10,8 +10,8 @@ using System.Diagnostics;
 public class GameUI : MonoBehaviour
 {
 
-    DateTime ghostScareCountDownStartTime;
-    DateTime ghostScareCountDownEndTime;
+    float ghostScareCountDownStartTime;
+    float ghostScareCountDownEndTime;
 
     bool flagGhostScareEnabled = false;
     public GameObject ghostScareLabel;
@@ -32,8 +32,8 @@ public class GameUI : MonoBehaviour
     }
 
     public void setScare(int duration) {
-        ghostScareCountDownStartTime = DateTime.Now;
-        ghostScareCountDownEndTime = ghostScareCountDownStartTime + new TimeSpan(0, 0, duration);
+        ghostScareCountDownStartTime = Time.time;
+        ghostScareCountDownEndTime = ghostScareCountDownStartTime + duration;
         showHideScare(true);
         flagGhostScareEnabled = true;
 
@@ -53,11 +53,11 @@ public class GameUI : MonoBehaviour
     void Update()
     {
         scoreText.GetComponent<TextMeshProUGUI>().SetText(gameCoreScript.score.ToString());
-        timeText.GetComponent<TextMeshProUGUI>().SetText((DateTime.Now - gameCoreScript.startTime).ToString().Substring(3, 10));
+        timeText.GetComponent<TextMeshProUGUI>().SetText(new TimeSpan(0, 0, (int)Math.Round(Time.time - gameCoreScript.startTime)).ToString());
 
         if(flagGhostScareEnabled) {
-            ghostScareText.GetComponent<TextMeshProUGUI>().SetText(((int)(ghostScareCountDownEndTime - DateTime.Now).TotalSeconds).ToString());
-            if((ghostScareCountDownEndTime - DateTime.Now).TotalSeconds <= 0) {
+            ghostScareText.GetComponent<TextMeshProUGUI>().SetText(((int)(ghostScareCountDownEndTime - Time.time)).ToString());
+            if((ghostScareCountDownEndTime - Time.time) <= 0) {
                 flagGhostScareEnabled = false;
                 showHideScare(false);
             }

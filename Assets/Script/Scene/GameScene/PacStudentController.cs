@@ -12,68 +12,42 @@ using TMPro;
 
 public class PacStudentController : MonoBehaviour
 {
-
-    char lastInput = 'd';
-    char currentInput = 'd';
-
-    Vector3 currentPosition = Vector3.zero;
-
-    /*public char lastInput { 
-        get {
-            return priv_lastInput; 
-        } 
-        set {
-            // Debug.Log("lastInput::preCheck");
-            //if(!canTurn(value)) {
-            //    return ;
-            //}
-
-            //currentInput = value;
-            //Debug.Log("lastInput::postCheck");
-            //if(pacAnimator != null) {
-                switch(value) {
-           //         case 'w': pacAnimator.Play("Direction Layer.DirectionUp"); break;
-           //         case 's': pacAnimator.Play("Direction Layer.DirectionDown"); break;
-           //         case 'a': pacAnimator.Play("Direction Layer.DirectionLeft"); break;
-            //        case 'd': pacAnimator.Play("Direction Layer.DirectionRight"); break;
-                    default: break;
-                }
-            }
-
-            //priv_lastInput = value;
-
-        }
-    }*/
-
-
-   
+    public GameObject PacStudent;
+    public GameObject gameCore;
     public BoundedStack<Vector2> history;
     public char priv_lastInput = 'd';
 
-    public float currentX = 1;
-    public float currentY = 1;
+
+    Vector3 movingTarget = Vector3.zero;
+
+    char lastInput = 'd';
+    public char currentInput = 'd';
+
+    Vector3 currentPosition = Vector3.zero;
+
+    bool flagPacStudentSetup = false;
 
     float MOVE_SPEED_MAGNIFICATION = 1.0f;
     Animator pacAnimator;
-    public GameObject PacStudent;
-    
-    public GameObject gameCore;
+
     GameCore gameCoreScript;
     LevelGenerator levelGeneratorScript;
+
+    List<String> unavailableType = new List<string> {"outside_corner", "outside_wall", "inside_corner", "inside_wall", "t"};
 
     Dictionary<char, string> turnMode = new Dictionary<char, string> {
         {'w', "ws"}, {'s', "ws"}, {'a', "ad"}, {'d', "ad"},
     };
 
     bool flagMoving = false;
-    public float targetX = 1;
-    public float targetY = 1;
 
     Dictionary<char, Vector3> nextCellOffset = new Dictionary<char, Vector3> {
         {'w', new Vector3( 0, 1, 0)}, {'s', new Vector3( 0,-1, 0)},
         {'a', new Vector3(-1, 0, 0)}, {'d', new Vector3( 1, 0, 0)}
     };
     
+    GameObject square;
+    public String tileInfoStr = "";
 
     // Start is called before the first frame update
     void Start()
@@ -84,6 +58,9 @@ public class PacStudentController : MonoBehaviour
         levelGeneratorScript = gameCore.GetComponent<LevelGenerator>();
 
         history = new BoundedStack<Vector2>(32);
+
+        square = GameObject.Find("Square");
+        square.GetComponent<SpriteRenderer>().color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
 
     }
 
@@ -97,28 +74,40 @@ public class PacStudentController : MonoBehaviour
         if ( Input.GetKey("a")) {  lastInput = 'a'; }
         if ( Input.GetKey("d")) {  lastInput = 'd'; }
 
-        if(checkWall() && checkInCell(0.1f)) {
-            currentInput = lastInput;
+        if(movingTarget != Vector3.zero) {
+            var boardTarget = worldPosToBoardPos(movingTarget);
+            var movingOffset = nextCellOffset[lastInput];
+            var targetCell = movingOffset + boardTarget;
+
+            square.transform.position = boardPosToWorldPos(targetCell);
+
+            var tileInfo = levelGeneratorScript.queryTileInfoBoard(targetCell.x, targetCell.y);
+            tileInfoStr = tileInfo.ToString();
+            
+            if(unavailableType.Contains(tileInfo.tileTypeStr)) {
+                currentInput = ' ';
+            }
+            else {
+                currentInput = lastInput;
+            }
+
         }
 
-        /*
-        var currentPos = worldPosToBoardPos(PacStudent.transform.position);
-        currentX = currentPos.x;
-        currentY = currentPos.y;
-
-        if(superimposeCheck(worldPosToBoardPos(PacStudent.transform.position), new Vector3(targetX, targetY, 0))) {
-            setToCell();
+        if(flagPacStudentSetup) {
+            if(!flagMoving) {
+                if(currentInput != ' ') {
+                    StartCoroutine(MoveStudent(nextCellOffset[currentInput]));
+                }
+            }
         }
 
-        if(checkReachTheDestination()) {
-            flagMoving = setNextCell();
-        }
-        else {
-            flagMoving = true;
-        }
 
-        // Debug.Log($"currentX: {currentX} currentY: {currentY} targetX: {targetX} targetY: {targetY}");
-    */
+    }
+
+    public void setupCurrentBoardPosition(int x, int y) {
+        PacStudent.transform.position = boardPosToWorldPos(new Vector3(x, y, 0));
+        flagPacStudentSetup = true;
+
     }
 
     bool checkWall() {
@@ -138,122 +127,26 @@ public class PacStudentController : MonoBehaviour
         return false;// isWallList[tileInfo.tileType];
     }
 
-    bool checkInCell(float accurate) {
-        Vector3 currentBoardPosition = worldPosToBoardPos(PacStudent.transform.position);
+    IEnumerator MoveStudent(Vector3 direction) {
+        flagMoving = true;
 
-        Vector3 targetBoardPosition = new Vector3((float)Math.Round(currentBoardPosition.x), (float)Math.Round(currentBoardPosition.y), 0);
+        float moveDuration = 0.5f;
+        float elapsedTime = 0f;
+        var startPosition = PacStudent.transform.position;
+        var targetPosition = startPosition + direction;
+        movingTarget = targetPosition;
 
-        var Distance = Vector3.Distance(currentBoardPosition, targetBoardPosition);
-
-        return Distance < accurate;
-    }
-
-
-
-    void FixedUpdate() {
-
-        if(currentX == targetX && currentY == targetY) {
-            // return ;
+        while(elapsedTime < moveDuration) {
+            PacStudent.transform.position = Vector3.Lerp(startPosition, targetPosition, (elapsedTime / moveDuration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
 
-        if(!flagMoving) {
-            // return ;
-        }
+        PacStudent.transform.position = targetPosition;
 
-        Vector3 offset = nextCellOffset[currentInput] * (MOVE_SPEED_MAGNIFICATION * Time.deltaTime);
-        
-        var currentPos = PacStudent.transform.position;
-
-        PacStudent.transform.position = new Vector3(currentPos.x + offset.x, currentPos.y + offset.y, 0);
+        flagMoving = false;
 
     }
-
-    public void setupCurrentBoardPosition(int x, int y) {
-        PacStudent.transform.position = boardPosToWorldPos(new Vector3(x, y, 0));
-        
-        /*
-        currentX = x;
-        currentY = y;
-        targetX = x;
-        targetY = y;
-
-        history.Push(new Vector2(currentX, currentY));
-
-        PacStudent.transform.position = boardPosToWorldPos(currentX, currentY);
-        */
-    }
-
-    public void movePacStudent(Vector3 boardPosition) {
-
-    }
-
-/*
-    public bool setNextCell() {
-        var nextOffset = nextCellOffset[lastInput];
-
-        var nextX = (int)(currentX + nextOffset.x);
-        var nextY = (int)(currentY + nextOffset.y);
-
-        int [,] levelMap = gameCoreScript.getLevelMap();
-        int height = levelMap.GetLength(0) * 2;
-        int width = levelMap.GetLength(1) * 2;
-
-        Debug.Log("nextX: " + nextX + " nextY: " + nextY);
-
-        if(nextX < -width || nextY < -height || width < nextX || height < nextY) {
-            return false;
-        }
-        else {
-            targetX = nextX;
-            targetY = nextY;
-            
-            return true;
-        }
-
-    }
-
-
-    public bool checkReachTheDestination() {
-        return currentX == targetX && currentY == targetY;
-    }
-
-    public bool superimposeCheck(Vector3 a, Vector3 b) {
-        if((Vector2.Distance(a, b)  < 0.05f)) {
-            Debug.Log("superimposeCheck::Distance: " + (Vector2.Distance(a, b)  < 0.05f));
-        }
-        
-        return Vector2.Distance(a, b) < 0.1f;
-    }
-
-    public void setToCell() {
-        setupCurrentBoardPosition((int)targetX, (int)targetY);
-    }
-
-
-    public bool inCellCheck(float accurate) {
-        Vector3 currentBoardPosition = worldPosToBoardPos(PacStudent.transform.position);
-
-        Vector3 targetBoardPosition = new Vector3((float)Math.Round(currentBoardPosition.x), (float)Math.Round(currentBoardPosition.y), 0);
-
-        var Distance = Vector3.Distance(currentBoardPosition, targetBoardPosition);
-
-
-        Debug.Log("currentBoardPosition: " + currentBoardPosition + " targetBoardPosition: " + targetBoardPosition);
-
-        return Distance < 0.10f;
-    }
-
-    public bool canTurn(char newDirection) {
-
-        bool flagInSameAxis = turnMode[newDirection].Contains(priv_lastInput);
-
-        bool flagInCell = inCellCheck(0.1f);
-
-        return flagInSameAxis || flagInCell;
-    }
-
-    */
-
 
 
     Vector3 worldPosToBoardPos(Vector3 worldPos) {
@@ -261,7 +154,7 @@ public class PacStudentController : MonoBehaviour
     }
 
     Vector3 worldPosToBoardPos(float x, float y) {
-        return new Vector3((x - 0.15f) / 0.3f, (y - 0.15f) / 0.3f, 0);
+        return new Vector3(x - 0.50f, y - 0.50f, 0);
     }
 
     Vector3 boardPosToWorldPos(Vector3 boardPos) {
@@ -273,7 +166,7 @@ public class PacStudentController : MonoBehaviour
     }
 
     Vector3 getPos(float x, float y) {
-        return new Vector3(x * 0.3f + 0.15f, y * 0.3f + 0.15f, 0);
+        return new Vector3(x + 0.50f, y + 0.50f, 0);
     }
 
 }

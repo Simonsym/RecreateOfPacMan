@@ -48,8 +48,7 @@ public class LevelGenerator : MonoBehaviour
         {2,2,2,2,2,1,5,3,3,0,4,0,0,0},
         {0,0,0,0,0,0,5,0,0,0,4,0,0,0},
     };
-
-    int[,] extendedLevelMap = new int[30, 28];
+    public int[,] extendedLevelMap = new int[30, 28];
 
     int[,] rotateMap = {
         {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, 
@@ -121,7 +120,7 @@ public class LevelGenerator : MonoBehaviour
 
                 if(TILE_MAPPING[tileValue].EndsWith("_pellet")) {
                     if(callback != null) {
-                        callback(TILE_MAPPING[tileValue], new Vector2(globalCoordinate.x + 0.15f, globalCoordinate.y + 0.15f));
+                        callback(TILE_MAPPING[tileValue], new Vector2(globalCoordinate.x + 0.50f, globalCoordinate.y + 0.50f));
                     }
                 }
 
@@ -132,28 +131,38 @@ public class LevelGenerator : MonoBehaviour
                 else if (newCoordinate.y < 0 && newCoordinate.x < 0) { quaternion = Quaternion.Euler(180f, 0f, 0f); } 
                 else                                                 { quaternion = Quaternion.Euler(0f, 180f, 0f) * Quaternion.Euler(180f, 0f, 0f); }
 
-                Instantiate(prefabMapping[TILE_MAPPING[tileValue]], new Vector3(globalCoordinate.x + 0.15f, globalCoordinate.y + 0.15f, 0), quaternion * Quaternion.Euler(0f, 0f, ROTATE_INDEX[extendedRotateMap[r, c]]));
+                Instantiate(prefabMapping[TILE_MAPPING[tileValue]], new Vector3(globalCoordinate.x + 0.50f, globalCoordinate.y + 0.50f, 0), quaternion * Quaternion.Euler(0f, 0f, ROTATE_INDEX[extendedRotateMap[r, c]]));
             }
         }
     }
 
+    public TileInfo queryTileInfoBoard(float x, float y) {
+        return queryTileInfo(x + 15, 14 - y);
+    }
+
     public TileInfo queryTileInfoBoard(int x, int y) {
-        return queryTileInfo(x + 14, -y - 14);
+        return queryTileInfo(x + 15, 14 - y);
     }
 
     public TileInfo queryTileInfo(int x, int y) {
-        //var convertedCoordinate = coordinateMapping(x, y);
-        //x = convertedCoordinate.x;
-        //y = convertedCoordinate.y;
-
-        if(x <= -14 || x >=14 || y <= -13 || y >= 13) {
-            // return new TileInfo(2, 0);
-        }
-
-        Debug.Log($"queryTileInfo -> x:{x} y:{y}");
-
         int type = extendedLevelMap[y, x];
         int rotate = extendedRotateMap[y, x];
+
+        return new TileInfo(type, rotate);
+    }
+
+    public TileInfo queryTileInfo(float fx, float fy) {
+        int x = (int)fx;
+        int y = (int)fy;
+
+        int type = 0;
+        int rotate = 2;
+
+        try {
+            type = extendedLevelMap[y, x];
+            rotate = extendedRotateMap[y, x];
+        }
+        catch(Exception _) { }
 
         return new TileInfo(type, rotate);
     }
@@ -214,7 +223,7 @@ public class LevelGenerator : MonoBehaviour
         return (Tile) Resources.Load(TILE_PATH_BASE + name, typeof(Tile));
     }
     Vector2Int coordinateMapping(int x, int y) {
-        return new Vector2Int(x - 14, 14 - y);
+        return new Vector2Int(x - 15, 14 - y);
     }
 
 }
@@ -227,8 +236,12 @@ public class TileInfo {
     public TileInfo(int tileType, int rotate) {
         this.tileType = tileType;
         tileTypeStr = LevelGenerator.TILE_MAPPING[this.tileType];
-        rotate = LevelGenerator.ROTATE_INDEX[rotate];
+        this.rotate = LevelGenerator.ROTATE_INDEX[rotate];
     }
 
+    public override string ToString()
+    {
+        return $"TileInfo{{type={tileTypeStr} rotate={rotate}}}";
+    }
 
 }
