@@ -126,9 +126,9 @@ public class LevelGenerator : MonoBehaviour
 
                 Quaternion quaternion;
 
-                if(newCoordinate.x >= 0 && newCoordinate.y > 0)      { quaternion = Quaternion.Euler(0f, 180f, 0f); }
-                else if(newCoordinate.x < 0 && newCoordinate.y > 0)  { quaternion = Quaternion.identity; }
-                else if (newCoordinate.y < 0 && newCoordinate.x < 0) { quaternion = Quaternion.Euler(180f, 0f, 0f); } 
+                if(newCoordinate.x >= 14 && newCoordinate.y > -15)      { quaternion = Quaternion.Euler(0f, 180f, 0f); }
+                else if(newCoordinate.x < 14 && newCoordinate.y > -15)  { quaternion = Quaternion.identity; }
+                else if (newCoordinate.y < -15 && newCoordinate.x < 14) { quaternion = Quaternion.Euler(180f, 0f, 0f); } 
                 else                                                 { quaternion = Quaternion.Euler(0f, 180f, 0f) * Quaternion.Euler(180f, 0f, 0f); }
 
                 Instantiate(prefabMapping[TILE_MAPPING[tileValue]], new Vector3(globalCoordinate.x + 0.50f, globalCoordinate.y + 0.50f, 0), quaternion * Quaternion.Euler(0f, 0f, ROTATE_INDEX[extendedRotateMap[r, c]]));
@@ -137,11 +137,11 @@ public class LevelGenerator : MonoBehaviour
     }
 
     public TileInfo queryTileInfoBoard(float x, float y) {
-        return queryTileInfo(x + 15, 14 - y);
+        return queryTileInfo(x, -y);
     }
 
     public TileInfo queryTileInfoBoard(int x, int y) {
-        return queryTileInfo(x + 15, 14 - y);
+        return queryTileInfo(x, -y);
     }
 
     public TileInfo queryTileInfo(int x, int y) {
@@ -223,7 +223,7 @@ public class LevelGenerator : MonoBehaviour
         return (Tile) Resources.Load(TILE_PATH_BASE + name, typeof(Tile));
     }
     Vector2Int coordinateMapping(int x, int y) {
-        return new Vector2Int(x - 15, 14 - y);
+        return new Vector2Int(x, -y);
     }
 
 }
