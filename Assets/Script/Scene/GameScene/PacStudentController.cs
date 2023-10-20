@@ -17,7 +17,7 @@ public class PacStudentController : MonoBehaviour
     public BoundedStack<Vector2> history;
     public char priv_lastInput = 'd';
 
-
+    ParticleSystem particleSystem;
     Vector3 movingTarget = Vector3.zero;
 
     char lastInput = 'd';
@@ -39,7 +39,11 @@ public class PacStudentController : MonoBehaviour
         {'w', "ws"}, {'s', "ws"}, {'a', "ad"}, {'d', "ad"},
     };
 
-    bool flagMoving = false;
+    bool priv_flagMoving = false;
+    bool flagMoving {
+        get { return priv_flagMoving; }
+        set { particleSystem.GetComponent<Renderer>().enabled = value; priv_flagMoving = value; }
+    }
 
     Dictionary<char, Vector3> nextCellOffset = new Dictionary<char, Vector3> {
         {'w', new Vector3( 0, 1, 0)}, {'s', new Vector3( 0,-1, 0)},
@@ -49,10 +53,19 @@ public class PacStudentController : MonoBehaviour
     GameObject square;
     public String tileInfoStr = "";
 
+    AudioSource audioSourceMoving;
+    AudioSource audioSourceBrust;
+    AudioClip audioMoveEffect;
+    AudioClip audioEatBean;
+    AudioClip audioDie;
+    AudioClip audioCollideOnWall;
+
+
     // Start is called before the first frame update
     void Start()
     {
         pacAnimator = PacStudent.GetComponent<Animator>();
+        
 
         gameCoreScript = gameCore.GetComponent<GameCore>();
         levelGeneratorScript = gameCore.GetComponent<LevelGenerator>();
@@ -61,6 +74,25 @@ public class PacStudentController : MonoBehaviour
 
         square = GameObject.Find("Square");
         square.GetComponent<SpriteRenderer>().color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+
+        var audioSources = GetComponentsInParent<AudioSource>();
+        audioSourceMoving = audioSources[0];
+        audioSourceBrust = audioSources[1];
+
+        audioSourceMoving = GetComponentInParent<AudioSource>();
+        audioMoveEffect = Resources.Load<AudioClip>("EffectSound/moving");
+        audioEatBean = Resources.Load<AudioClip>("EffectSound/eat_pellet");
+        audioDie = Resources.Load<AudioClip>("EffectSound/death");
+        audioCollideOnWall = Resources.Load<AudioClip>("EffectSound/collide_on_wall");
+
+        audioSourceMoving.clip = audioMoveEffect;
+        audioSourceMoving.loop = true;
+        audioSourceMoving.Play(0);
+
+        audioSourceBrust.clip = audioCollideOnWall;
+        audioSourceBrust.loop = false;
+
+        particleSystem = PacStudent.GetComponentInChildren<ParticleSystem>();
 
     }
 
@@ -93,6 +125,27 @@ public class PacStudentController : MonoBehaviour
 
         }
 
+
+        if(pacAnimator != null) {
+            switch(currentInput) {
+                case 'w': pacAnimator.Play("Direction Layer.DirectionUp");    pacAnimator.Play("Face Layer.PacFace"); break;
+                case 's': pacAnimator.Play("Direction Layer.DirectionDown");  pacAnimator.Play("Face Layer.PacFace"); break;
+                case 'a': pacAnimator.Play("Direction Layer.DirectionLeft");  pacAnimator.Play("Face Layer.PacFace"); break;
+                case 'd': pacAnimator.Play("Direction Layer.DirectionRight"); pacAnimator.Play("Face Layer.PacFace"); break;
+                case ' ':                                                     pacAnimator.Play("Face Layer.PacStop"); break;
+                default: break;
+            }
+        }
+
+        if(currentInput != ' ' && flagMoving) {
+            if(!audioSourceMoving.isPlaying) {
+                audioSourceMoving.Play(0);
+            }
+        }
+        else {
+            audioSourceMoving.Pause();
+        }
+
         if(flagPacStudentSetup) {
             if(!flagMoving) {
                 if(currentInput != ' ') {
@@ -110,21 +163,11 @@ public class PacStudentController : MonoBehaviour
 
     }
 
-    bool checkWall() {
-        var offset = nextCellOffset[lastInput];
-
-        Vector3 currentBoardPosition = worldPosToBoardPos(PacStudent.transform.position);
-
-        Vector3 targetBoardPosition = new Vector3((float)Math.Round(currentBoardPosition.x), (float)Math.Round(currentBoardPosition.y), 0);
-
-        targetBoardPosition += offset;
-
-        // {"empty", "outside_corner", "outside_wall", "inside_corner", "inside_wall", "normal_pellet", "power_pellet", "t"};
-        //var tileInfo = levelGeneratorScript.queryTileInfoBoard((int)targetBoardPosition.x, (int)targetBoardPosition.y);
-        //var nextPosWall = gameCoreScript.getExtendedLevelMap()[(int)targetBoardPosition.x, (int)targetBoardPosition.y];
-        var isWallList = new bool[8]{false, true, true, true, true, false, false, true};
-        
-        return false;// isWallList[tileInfo.tileType];
+    public void onMoveEnd() {
+        if(currentInput == ' ') {
+            audioSourceBrust.clip = audioCollideOnWall;
+            audioSourceBrust.Play(0);
+        }
     }
 
     IEnumerator MoveStudent(Vector3 direction) {
@@ -145,6 +188,9 @@ public class PacStudentController : MonoBehaviour
         PacStudent.transform.position = targetPosition;
 
         flagMoving = false;
+
+        onMoveEnd();
+
 
     }
 
