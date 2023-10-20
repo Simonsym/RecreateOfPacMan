@@ -16,6 +16,7 @@ public class PacStudentController : MonoBehaviour
     public GameObject gameCore;
     public BoundedStack<Vector2> history;
     public char priv_lastInput = 'd';
+    public GameObject sparkPrefab;
 
     ParticleSystem particleSystem;
     Vector3 movingTarget = Vector3.zero;
@@ -59,6 +60,8 @@ public class PacStudentController : MonoBehaviour
     AudioClip audioEatBean;
     AudioClip audioDie;
     AudioClip audioCollideOnWall;
+
+    
 
 
     // Start is called before the first frame update
@@ -167,6 +170,7 @@ public class PacStudentController : MonoBehaviour
         if(currentInput == ' ') {
             audioSourceBrust.clip = audioCollideOnWall;
             audioSourceBrust.Play(0);
+            Instantiate(sparkPrefab, PacStudent.transform.position, Quaternion.identity);
         }
     }
 
