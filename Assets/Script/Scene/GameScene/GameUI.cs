@@ -27,13 +27,14 @@ public class GameUI : MonoBehaviour
     public GameCore gameCoreScript;
 
     public void showHideScare(bool _switch) {
-        ghostScareLabel.SetActive(_switch);
-        ghostScareText.SetActive(_switch);
+        ghostScareLabel.GetComponent<TextMeshProUGUI>().enabled = _switch;
+        ghostScareText.GetComponent<TextMeshProUGUI>().enabled = _switch;
+
     }
 
     public void setScare(int duration) {
         ghostScareCountDownStartTime = Time.time;
-        ghostScareCountDownEndTime = ghostScareCountDownStartTime + duration;
+        ghostScareCountDownEndTime = ghostScareCountDownStartTime + duration + 0.3f;
         showHideScare(true);
         flagGhostScareEnabled = true;
 

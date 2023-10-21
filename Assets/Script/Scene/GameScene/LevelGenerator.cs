@@ -167,7 +167,7 @@ public class LevelGenerator : MonoBehaviour
             type = extendedLevelMap[y, x];
             rotate = extendedRotateMap[y, x];
         }
-        catch(Exception _) { }
+        catch(Exception) { }
 
         return new TileInfo(type, rotate);
     }

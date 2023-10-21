@@ -1906,7 +1906,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4405645920534855035, guid: b02dc821ff95cb84f9b513dd207c1ce2, type: 3}
       propertyPath: m_Name
-      value: GhostG
+      value: GhostP
       objectReference: {fileID: 0}
     - target: {fileID: 7066033127878326764, guid: b02dc821ff95cb84f9b513dd207c1ce2, type: 3}
       propertyPath: m_RootOrder
@@ -2846,9 +2846,10 @@ MonoBehaviour:
   GhostPrefab: {fileID: 4405645920534855035, guid: b02dc821ff95cb84f9b513dd207c1ce2, type: 3}
   NormalPelletPrefab: {fileID: 6042104812971594948, guid: c788f5596b3e0194aba142d77fb77326, type: 3}
   GhostR: {fileID: 1693060154}
-  GhostG: {fileID: 1039202367}
+  GhostP: {fileID: 1039202367}
   GhostB: {fileID: 1351209413}
   GhostY: {fileID: 1150040664}
+  DieSparkPrefab: {fileID: 3493103277890275894, guid: 2c2e9eb5f1464a1479b9c0271ce8986d, type: 3}
 --- !u!114 &1381497501
 MonoBehaviour:
   m_ObjectHideFlags: 0

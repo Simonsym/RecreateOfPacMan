@@ -18,7 +18,7 @@ public class PacStudentController : MonoBehaviour
     public char priv_lastInput = 'd';
     public GameObject sparkPrefab;
 
-    ParticleSystem particleSystem;
+    ParticleSystem PacStudentParticleSystem;
     Vector3 movingTarget = Vector3.zero;
 
     char lastInput = 'd';
@@ -28,7 +28,6 @@ public class PacStudentController : MonoBehaviour
 
     bool flagPacStudentSetup = false;
 
-    float MOVE_SPEED_MAGNIFICATION = 1.0f;
     Animator pacAnimator;
 
     GameCore gameCoreScript;
@@ -43,7 +42,7 @@ public class PacStudentController : MonoBehaviour
     bool priv_flagMoving = false;
     bool flagMoving {
         get { return priv_flagMoving; }
-        set { particleSystem.GetComponent<Renderer>().enabled = value; priv_flagMoving = value; }
+        set { PacStudentParticleSystem.GetComponent<Renderer>().enabled = value; priv_flagMoving = value; }
     }
 
     Dictionary<char, Vector3> nextCellOffset = new Dictionary<char, Vector3> {
@@ -61,6 +60,8 @@ public class PacStudentController : MonoBehaviour
     AudioClip audioDie;
     AudioClip audioCollideOnWall;
 
+    bool flagTransmit = false;
+    Vector2 transmitPosition;
     
 
 
@@ -95,7 +96,7 @@ public class PacStudentController : MonoBehaviour
         audioSourceBrust.clip = audioCollideOnWall;
         audioSourceBrust.loop = false;
 
-        particleSystem = PacStudent.GetComponentInChildren<ParticleSystem>();
+        PacStudentParticleSystem = PacStudent.GetComponentInChildren<ParticleSystem>();
 
     }
 
@@ -111,6 +112,7 @@ public class PacStudentController : MonoBehaviour
 
         if(movingTarget != Vector3.zero) {
             var boardTarget = worldPosToBoardPos(movingTarget);
+            if(lastInput == ' ') { return ; }
             var movingOffset = nextCellOffset[lastInput];
             var targetCell = movingOffset + boardTarget;
 
@@ -166,11 +168,24 @@ public class PacStudentController : MonoBehaviour
 
     }
 
+    public void setupTransmit(Vector2 transmitPosition) {
+        flagTransmit = true;
+        this.transmitPosition = transmitPosition;
+
+    }
+
     public void onMoveEnd() {
         if(currentInput == ' ') {
             audioSourceBrust.clip = audioCollideOnWall;
             audioSourceBrust.Play(0);
             Instantiate(sparkPrefab, PacStudent.transform.position, Quaternion.identity);
+        }
+
+        if(flagTransmit) {
+            setupCurrentBoardPosition((int)transmitPosition.x, (int)transmitPosition.y);
+            flagTransmit = false;
+            currentInput = ' ';
+            lastInput = ' ';
         }
     }
 
@@ -203,7 +218,6 @@ public class PacStudentController : MonoBehaviour
         flagMoving = false;
 
         onMoveEnd();
-
 
     }
 

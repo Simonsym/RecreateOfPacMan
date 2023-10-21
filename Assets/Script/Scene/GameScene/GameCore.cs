@@ -22,14 +22,16 @@ public class GameCore : MonoBehaviour
     public GameObject NormalPelletPrefab;
 
     public GameObject GhostR;
-    public GameObject GhostG;
+    public GameObject GhostP;
     public GameObject GhostB;
     public GameObject GhostY;
+    public GameObject DieSparkPrefab;
 
     GameObject PacStudent;
 
     public float startTime { get; set; }
     public int score { get; set; }
+    public int health_point { get; set; }
 
     LevelGenerator levelGeneratorScript;
 
@@ -42,13 +44,20 @@ public class GameCore : MonoBehaviour
     bool flagPowerPill = false;
     GameUI gameUI;
 
+    Dictionary<String, GameObject> ghostMapping;
+
+    GameObject[] hearts;
+
+    Vector2Int playerInitPosition;
+
+    PacStudentController pacStudentController;
 
 
     // Start is called before the first frame update
     void Start()
     {
         gameUI = GetComponentInParent<GameUI>();
-
+        backgroundSound = Resources.Load<AudioClip>(GAME_BACKGROUND);
 
         startTime = Time.time;
         score = 0;
@@ -69,13 +78,7 @@ public class GameCore : MonoBehaviour
         Invoke("LevelGenerator_instance_GeneratorMap", 0.01f);
         Invoke("putPacStudent", 0.02f);
 
-        GhostR.transform.position = new Vector3(-0.75f, 0.45f, 0.0f);
-        GhostG.transform.position = new Vector3(-0.45f, 0.45f, 0.0f);
-        GhostB.transform.position = new Vector3(-0.15f, 0.45f, 0.0f);
-        GhostY.transform.position = new Vector3( 0.15f, 0.45f, 0.0f);
-
         u_score = GameObject.Find("u_score").GetComponent<TextMeshProUGUI>();
-
 
 
         audioClipEatPellet = Resources.Load<AudioClip>("EffectSound/eat_pellet");
@@ -83,13 +86,31 @@ public class GameCore : MonoBehaviour
         audioSourceBrust.clip = audioClipEatPellet;
         audioSourceBrust.loop = false;
 
+        ghostMapping = new Dictionary<string, GameObject>() {
+            {"GhostBlue", GhostB},
+            {"GhostRed" , GhostR},
+            {"GhostPink", GhostP},
+            {"GhostYellow", GhostY}
+        };
+
         putGhosts();
+        setupGhosts();
+
+        gameUI.showHideScare(false);
+
+        hearts = new GameObject[3];
+
+        hearts[0] = GameObject.Find("u_heart_0");
+        hearts[1] = GameObject.Find("u_heart_1");
+        hearts[2] = GameObject.Find("u_heart_2");
+
+        health_point = 3;
 
     }
 
     // Update is called once per frame
     void Update() {
-         Debug.Log("audioSourceBrust.time: " + audioSourceBrust.time + "backgroundPlayer: " + backgroundPlayer.time);
+         // Debug.Log("audioSourceBrust.time: " + audioSourceBrust.time + "backgroundPlayer: " + backgroundPlayer.time);
     }
 
     public void onEatPellet(GameObject o) {
@@ -124,6 +145,12 @@ public class GameCore : MonoBehaviour
 
         }
         else {
+            var PlayerPosition = PacStudent.transform.position;
+            Instantiate(DieSparkPrefab, PlayerPosition, Quaternion.identity);
+            health_point -= 1;
+            Destroy(hearts[2]);
+            pacStudentController.setupTransmit(playerInitPosition);
+
 
         }
     }
@@ -133,8 +160,30 @@ public class GameCore : MonoBehaviour
         score += value;
     }
 
+    void setupFace(String ghostName, String faceName, bool flagAbsolute = false, String layerName = "Face Layer") {
+        String fillFace;
+        if(!flagAbsolute) {
+            fillFace = ghostName + faceName;
+        }
+        else {
+            fillFace = faceName;
+        }
+        ghostMapping[ghostName].GetComponentInChildren<Animator>().Play($"{layerName}.{fillFace}");
+
+    }
+
+    void setupGhosts() {
+        setupGhosts("");
+    }
+
+    void setupGhosts(String face) {
+        foreach(var kv in ghostMapping) {
+            setupFace(kv.Key, face);
+        }
+    }
+
     void onPowerPellet() {
-        List<GameObject> ghosts = new List<GameObject> {GhostB, GhostG, GhostR, GhostY};
+        flagPowerPill = true;
 
         backgroundPlayer.Stop();
         backgroundPlayer.clip = bgmScared;
@@ -144,34 +193,53 @@ public class GameCore : MonoBehaviour
         Invoke("setGhostToRecovery", 7.0f);
         Invoke("stopPowerPelletMode", 10.0f);
 
+        setupGhosts("Fear");
+
+
     }
 
     void setGhostToRecovery() {
-
+        foreach(var kv in ghostMapping) {
+            setupFace(kv.Key, "Flash", true, "Flash Layer");
+        }
     }
 
     void stopPowerPelletMode() {
+        flagPowerPill = false;
+
+        backgroundPlayer.Stop();
+        backgroundPlayer.clip = backgroundSound;
+        backgroundPlayer.Play(0);
+
+        setupGhosts("");
+
+        foreach(var kv in ghostMapping) {
+            setupFace(kv.Key, "NotFlash", true, "Flash Layer");
+        }
 
     }
 
     void putGhosts() {
-        GhostB.transform.position = new Vector3(11.5f, -12.5f, 0.0f);
-        GhostR.transform.position = new Vector3(12.5f, -12.5f, 0.0f);
-        GhostG.transform.position = new Vector3(13.5f, -12.5f, 0.0f);
-        GhostY.transform.position = new Vector3(14.5f, -12.5f, 0.0f);
+        Vector3 ghostPosition = new Vector3(11.5f, -12.5f, 0.0f);
+        Vector3 direction     = new Vector3(1.0f,    0.0f, 0.0f);
+
+        foreach(var kv in ghostMapping) {
+            kv.Value.transform.position = ghostPosition;
+            ghostPosition += direction;
+        }
+
     }
 
     void PlayIntroSound() {
-        backgroundSound = Resources.Load<AudioClip>(GAME_BACKGROUND);
-        
         backgroundPlayer.Play(0);
         Invoke("StopIntroSound", 5);
     }
 
     void StopIntroSound() {
+        if (backgroundPlayer.clip == bgmScared) { return ; }
+
         backgroundPlayer.Stop();
 
-        Debug.Log("Will play background: " + backgroundSound.name);
         backgroundPlayer.clip = backgroundSound;
         backgroundPlayer.loop = true;
         backgroundPlayer.Play(0);
@@ -210,9 +278,11 @@ public class GameCore : MonoBehaviour
         PacStudent = GameObject.Find("go_pac_student");
         var availablePair = coordinateMapping(availableX, availableY);
 
-        PacStudentController pacStudentController = PacStudent.GetComponent<PacStudentController>();
+        pacStudentController = PacStudent.GetComponent<PacStudentController>();
 
         pacStudentController.setupCurrentBoardPosition(availablePair.x, availablePair.y);
+
+        playerInitPosition = availablePair;
 
     }
 
