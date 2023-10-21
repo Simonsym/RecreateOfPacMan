@@ -45,7 +45,10 @@ public class CherryController : MonoBehaviour
             yield return null;
         }
 
-        Destroy(cherry);
+        try {
+            Destroy(cherry);
+        }
+        catch(Exception) { }
     }
 
 

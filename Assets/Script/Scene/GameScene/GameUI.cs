@@ -26,7 +26,7 @@ public class GameUI : MonoBehaviour
     public GameObject gameCore;
     public GameCore gameCoreScript;
 
-    void showHideScare(bool _switch) {
+    public void showHideScare(bool _switch) {
         ghostScareLabel.SetActive(_switch);
         ghostScareText.SetActive(_switch);
     }

@@ -7,12 +7,13 @@ using UnityEngine.Tilemaps;
 
 using UnityEditor;
 using UnityEditor.Animations;
+using TMPro;
 
 public class GameCore : MonoBehaviour
 {
 
     static readonly string GAME_BACKGROUND = "Sound/game_background";
-    AudioSource backgroundPlayer;
+    
     Tilemap gameTileMap;
     Grid gameGrid;
     AudioClip backgroundSound;
@@ -32,17 +33,36 @@ public class GameCore : MonoBehaviour
 
     LevelGenerator levelGeneratorScript;
 
+    TextMeshProUGUI u_score;
+    AudioSource backgroundPlayer;
+    AudioSource audioSourceBrust;
+    AudioClip audioClipEatPellet;
+    AudioClip bgmScared;
+
+    bool flagPowerPill = false;
+    GameUI gameUI;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
+        gameUI = GetComponentInParent<GameUI>();
+
+
         startTime = Time.time;
         score = 0;
+        bgmScared = Resources.Load<AudioClip>("Sound/game_background_scared");
 
         gameTileMap = GameObject.Find("GameTilemap").GetComponent<Tilemap>();
         gameGrid = GameObject.Find("GameGrid").GetComponent<Grid>();
 
         levelGeneratorScript = GetComponentInParent<LevelGenerator>();
+
+        var audioSources = GetComponents<AudioSource>();
+
+        backgroundPlayer = audioSources[0];
+        audioSourceBrust = audioSources[1];
 
         PlayIntroSound();
         
@@ -54,15 +74,96 @@ public class GameCore : MonoBehaviour
         GhostB.transform.position = new Vector3(-0.15f, 0.45f, 0.0f);
         GhostY.transform.position = new Vector3( 0.15f, 0.45f, 0.0f);
 
+        u_score = GameObject.Find("u_score").GetComponent<TextMeshProUGUI>();
+
+
+
+        audioClipEatPellet = Resources.Load<AudioClip>("EffectSound/eat_pellet");
+        Debug.Log(audioClipEatPellet);
+        audioSourceBrust.clip = audioClipEatPellet;
+        audioSourceBrust.loop = false;
+
+        putGhosts();
+
     }
 
     // Update is called once per frame
-    void Update() { }
+    void Update() {
+         Debug.Log("audioSourceBrust.time: " + audioSourceBrust.time + "backgroundPlayer: " + backgroundPlayer.time);
+    }
+
+    public void onEatPellet(GameObject o) {
+        switch(o.name) {
+            case "normal_pellet": {
+                audioSourceBrust.clip = audioClipEatPellet;
+                audioSourceBrust.Play();
+                
+                addScore(10);
+                Destroy(o);
+                break ;
+            }
+            case "bonus_score_cherry": {
+                audioSourceBrust.clip = audioClipEatPellet;
+                audioSourceBrust.Play();
+                
+                addScore(100);
+                Destroy(o);
+                break ;
+            }
+            case "power_pellet": {
+                onPowerPellet();
+                Destroy(o);
+                break ;
+            }
+        }   
+
+    }
+
+    public void onTouchGhost(GameObject o) {
+        if(flagPowerPill) {
+
+        }
+        else {
+
+        }
+    }
+
+    public void addScore(int value) {
+        // Debug.Log($"addScore {value} {Time.time}");
+        score += value;
+    }
+
+    void onPowerPellet() {
+        List<GameObject> ghosts = new List<GameObject> {GhostB, GhostG, GhostR, GhostY};
+
+        backgroundPlayer.Stop();
+        backgroundPlayer.clip = bgmScared;
+        backgroundPlayer.Play(0);
+
+        gameUI.setScare(10);
+        Invoke("setGhostToRecovery", 7.0f);
+        Invoke("stopPowerPelletMode", 10.0f);
+
+    }
+
+    void setGhostToRecovery() {
+
+    }
+
+    void stopPowerPelletMode() {
+
+    }
+
+    void putGhosts() {
+        GhostB.transform.position = new Vector3(11.5f, -12.5f, 0.0f);
+        GhostR.transform.position = new Vector3(12.5f, -12.5f, 0.0f);
+        GhostG.transform.position = new Vector3(13.5f, -12.5f, 0.0f);
+        GhostY.transform.position = new Vector3(14.5f, -12.5f, 0.0f);
+    }
 
     void PlayIntroSound() {
         backgroundSound = Resources.Load<AudioClip>(GAME_BACKGROUND);
-
-        backgroundPlayer = GetComponent<AudioSource>();
+        
         backgroundPlayer.Play(0);
         Invoke("StopIntroSound", 5);
     }

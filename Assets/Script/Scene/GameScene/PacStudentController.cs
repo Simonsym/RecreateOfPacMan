@@ -174,6 +174,15 @@ public class PacStudentController : MonoBehaviour
         }
     }
 
+    public void onTouchTransmitter(GameObject o) {
+        if(o.transform.position.x == -0.5f) {
+            PacStudent.transform.position = new Vector3(27.5f, PacStudent.transform.position.y, PacStudent.transform.position.z);
+        }
+        if(o.transform.position.x == 28.5f) {
+            PacStudent.transform.position = new Vector3( 0.5f, PacStudent.transform.position.y, PacStudent.transform.position.z);
+        }
+    }
+
     IEnumerator MoveStudent(Vector3 direction) {
         flagMoving = true;
 
