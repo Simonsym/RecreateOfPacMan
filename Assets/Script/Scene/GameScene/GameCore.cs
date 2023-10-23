@@ -159,14 +159,16 @@ public class GameCore : MonoBehaviour
         if(flagPowerPill) {
             o.GetComponent<Ghost>().flagDie = true;
             o.GetComponent<Animator>().Play("Face Layer.GhostBlueDie");
+            doGhostDie(o);
             addScore(300);
             Invoke("stopPowerPelletMode", 5.0f);
+
         }
         else {
             var PlayerPosition = PacStudent.transform.position;
             Instantiate(DieSparkPrefab, PlayerPosition, Quaternion.identity);
             health_point -= 1;
-            Destroy(hearts[2]);
+            Destroy(hearts[health_point]);
             pacStudentController.setupTransmit(playerInitPosition);
 
             if(health_point == 0) {
@@ -176,12 +178,35 @@ public class GameCore : MonoBehaviour
         }
     }
 
+    void doGhostDie(GameObject o) {
+        StartCoroutine(ghostDieScale(o));
+    }
+
+    IEnumerator ghostDieScale(GameObject o) {
+
+        float moveDuration = 0.5f;
+        float elapsedTime = 0f;
+        var startScale = PacStudent.transform.localScale;
+        var targetScale = Vector3.zero;
+
+        while(elapsedTime < moveDuration) {
+            o.transform.localScale = Vector3.Lerp(startScale, targetScale, (elapsedTime / moveDuration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        o.transform.position = targetScale;
+
+        Destroy(o);
+
+    }
+
     public void addScore(int value) {
         // Debug.Log($"addScore {value} {Time.time}");
         score += value;
     }
 
-    void onGameOver() {
+    public void onGameOver() {
         TextMeshProUGUI uiText = GameObject.Find("u_count_down").GetComponent<TextMeshProUGUI>();
         uiText.enabled = true;
         uiText.SetText("Game Over");
@@ -222,7 +247,10 @@ public class GameCore : MonoBehaviour
         else {
             fillFace = faceName;
         }
-        ghostMapping[ghostName].GetComponentInChildren<Animator>().Play($"{layerName}.{fillFace}");
+        try {
+            ghostMapping[ghostName].GetComponentInChildren<Animator>().Play($"{layerName}.{fillFace}");
+        }
+        catch(Exception) { }
 
     }
 
@@ -245,7 +273,7 @@ public class GameCore : MonoBehaviour
 
         gameUI.setScare(10);
         Invoke("setGhostToRecovery", 7.0f);
-        Invoke("stopPowerPelletMode", 10.0f);
+        Invoke("stopPowerPelletMode", 20.0f);
 
         setupGhosts("Fear");
 
