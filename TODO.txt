@@ -1,0 +1,4 @@
+If the ghost is moving (e.g. in the 90% section below), they can either keep moving on their ghost-specific behaviour or stop in their current position. Change the background music to match this state.
+
+Change the background music to match this state.
+

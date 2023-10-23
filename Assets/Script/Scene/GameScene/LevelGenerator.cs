@@ -25,6 +25,7 @@ public class LevelGenerator : MonoBehaviour
     public GameObject p_outside_wall;
     public GameObject p_PowerPellet;
     public GameObject p_t;
+    public GameObject p_transmitter;
 
     public delegate void PutElement(string type, Vector2 position);
 
@@ -123,17 +124,21 @@ public class LevelGenerator : MonoBehaviour
                         callback(TILE_MAPPING[tileValue], new Vector2(globalCoordinate.x + 0.50f, globalCoordinate.y + 0.50f));
                     }
                 }
+                else {
+                    Quaternion quaternion;
 
-                Quaternion quaternion;
+                    if(newCoordinate.x >= 14 && newCoordinate.y > -15)      { quaternion = Quaternion.Euler(0f, 180f, 0f); }
+                    else if(newCoordinate.x < 14 && newCoordinate.y > -15)  { quaternion = Quaternion.identity; }
+                    else if (newCoordinate.y < -15 && newCoordinate.x < 14) { quaternion = Quaternion.Euler(180f, 0f, 0f); } 
+                    else                                                 { quaternion = Quaternion.Euler(0f, 180f, 0f) * Quaternion.Euler(180f, 0f, 0f); }
 
-                if(newCoordinate.x >= 14 && newCoordinate.y > -15)      { quaternion = Quaternion.Euler(0f, 180f, 0f); }
-                else if(newCoordinate.x < 14 && newCoordinate.y > -15)  { quaternion = Quaternion.identity; }
-                else if (newCoordinate.y < -15 && newCoordinate.x < 14) { quaternion = Quaternion.Euler(180f, 0f, 0f); } 
-                else                                                 { quaternion = Quaternion.Euler(0f, 180f, 0f) * Quaternion.Euler(180f, 0f, 0f); }
-
-                Instantiate(prefabMapping[TILE_MAPPING[tileValue]], new Vector3(globalCoordinate.x + 0.50f, globalCoordinate.y + 0.50f, 0), quaternion * Quaternion.Euler(0f, 0f, ROTATE_INDEX[extendedRotateMap[r, c]]));
+                    Instantiate(prefabMapping[TILE_MAPPING[tileValue]], new Vector3(globalCoordinate.x + 0.50f, globalCoordinate.y + 0.50f, 0), quaternion * Quaternion.Euler(0f, 0f, ROTATE_INDEX[extendedRotateMap[r, c]]));
+                }
             }
         }
+
+        putTransmitters();
+
     }
 
     public TileInfo queryTileInfoBoard(float x, float y) {
@@ -162,9 +167,18 @@ public class LevelGenerator : MonoBehaviour
             type = extendedLevelMap[y, x];
             rotate = extendedRotateMap[y, x];
         }
-        catch(Exception _) { }
+        catch(Exception) { }
 
         return new TileInfo(type, rotate);
+    }
+
+    void putTransmitters() {
+        Instantiate(p_transmitter, new Vector3(-0.5f, -13.5f, 0), Quaternion.identity);
+        Instantiate(p_transmitter, new Vector3(-0.5f, -14.5f, 0), Quaternion.identity);
+
+        Instantiate(p_transmitter, new Vector3(28.5f, -13.5f, 0), Quaternion.identity);
+        Instantiate(p_transmitter, new Vector3(28.5f, -14.5f, 0), Quaternion.identity);
+
     }
 
     void ExtendLevelMap() {

@@ -26,14 +26,17 @@ public class GameUI : MonoBehaviour
     public GameObject gameCore;
     public GameCore gameCoreScript;
 
-    void showHideScare(bool _switch) {
-        ghostScareLabel.SetActive(_switch);
-        ghostScareText.SetActive(_switch);
+    GameObject ui_count_down; 
+
+    public void showHideScare(bool _switch) {
+        ghostScareLabel.GetComponent<TextMeshProUGUI>().enabled = _switch;
+        ghostScareText.GetComponent<TextMeshProUGUI>().enabled = _switch;
+
     }
 
     public void setScare(int duration) {
         ghostScareCountDownStartTime = Time.time;
-        ghostScareCountDownEndTime = ghostScareCountDownStartTime + duration;
+        ghostScareCountDownEndTime = ghostScareCountDownStartTime + duration + 0.3f;
         showHideScare(true);
         flagGhostScareEnabled = true;
 
@@ -44,8 +47,9 @@ public class GameUI : MonoBehaviour
     void Start()
     {
         gameCoreScript = gameCore.GetComponent<GameCore>();
-
-        // setScare(20);
+        ui_count_down = GameObject.Find("u_count_down");
+        
+        StartCoroutine(countDown());
 
     }
 
@@ -62,6 +66,24 @@ public class GameUI : MonoBehaviour
                 showHideScare(false);
             }
         }
-        
     }
+
+
+    IEnumerator countDown() {
+        bool flagFunctionEnd = false;
+        while(!flagFunctionEnd) {
+            Time.timeScale = 0;
+            yield return new WaitForSecondsRealtime(1);
+            ui_count_down.GetComponent<TextMeshProUGUI>().SetText("2");
+            yield return new WaitForSecondsRealtime(1);
+            ui_count_down.GetComponent<TextMeshProUGUI>().SetText("1");
+            yield return new WaitForSecondsRealtime(1);
+            ui_count_down.GetComponent<TextMeshProUGUI>().SetText("Go!");
+            Time.timeScale = 1;
+            flagFunctionEnd = true;
+            ui_count_down.GetComponent<TextMeshProUGUI>().enabled = false;
+            break;
+        }
+    }
+
 }
