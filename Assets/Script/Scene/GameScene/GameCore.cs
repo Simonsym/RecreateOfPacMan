@@ -8,6 +8,8 @@ using UnityEngine.Tilemaps;
 using UnityEditor;
 using UnityEditor.Animations;
 using TMPro;
+using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 public class GameCore : MonoBehaviour
 {
@@ -51,6 +53,10 @@ public class GameCore : MonoBehaviour
     Vector2Int playerInitPosition;
 
     PacStudentController pacStudentController;
+
+    int normalPelletCount = 0;
+
+    bool flagGhostStop = false;
 
 
     // Start is called before the first frame update
@@ -106,7 +112,6 @@ public class GameCore : MonoBehaviour
 
         health_point = 3;
 
-        Time.timeScale = 0;
 
     }
 
@@ -120,9 +125,14 @@ public class GameCore : MonoBehaviour
             case "normal_pellet": {
                 audioSourceBrust.clip = audioClipEatPellet;
                 audioSourceBrust.Play();
-                
+                normalPelletCount--;
                 addScore(10);
                 Destroy(o);
+
+                if(normalPelletCount <= 0) {
+                    onGameOver();
+                }
+
                 break ;
             }
             case "bonus_score_cherry": {
@@ -160,7 +170,7 @@ public class GameCore : MonoBehaviour
             pacStudentController.setupTransmit(playerInitPosition);
 
             if(health_point == 0) {
-                onPasStudentDie();
+                onPacStudentDie();
             }
 
         }
@@ -171,9 +181,38 @@ public class GameCore : MonoBehaviour
         score += value;
     }
 
-    void onPasStudentDie() {
-        Debug.Log("TODO!");
+    void onGameOver() {
+        TextMeshProUGUI uiText = GameObject.Find("u_count_down").GetComponent<TextMeshProUGUI>();
+        uiText.enabled = true;
+        uiText.SetText("Game Over");
+        flagGhostStop = true;
+
+        int lastHighScore = PlayerPrefs.GetInt("high_score", 0);
+        int lastHighScoreTime = PlayerPrefs.GetInt("high_score_time", 0);
+
+
+        if(score > lastHighScore) {
+            PlayerPrefs.SetInt("high_score", score);
+            PlayerPrefs.SetInt("high_score_time", (int)(Time.time - startTime));
+        }
+
+        if(score == lastHighScore && (int)(Time.time - startTime) < lastHighScoreTime) {
+            PlayerPrefs.SetInt("high_score", score);
+            PlayerPrefs.SetInt("high_score_time", (int)(Time.time - startTime));
+        }
+
+        Invoke("returnToStartScene", 3.0f);
+
     }
+
+    void returnToStartScene() {
+        SceneManager.LoadScene("StartScene");
+    }
+
+    void onPacStudentDie() {
+        onGameOver();
+    }
+
 
     void setupFace(String ghostName, String faceName, bool flagAbsolute = false, String layerName = "Face Layer") {
         String fillFace;
@@ -305,6 +344,7 @@ public class GameCore : MonoBehaviour
         switch(type) {
             case "normal_pellet": {
                 Instantiate(NormalPelletPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
+                normalPelletCount++;
                 break;
             }
             case "power_pellet": {
