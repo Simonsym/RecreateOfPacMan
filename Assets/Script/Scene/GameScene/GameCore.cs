@@ -106,6 +106,8 @@ public class GameCore : MonoBehaviour
 
         health_point = 3;
 
+        Time.timeScale = 0;
+
     }
 
     // Update is called once per frame
@@ -141,8 +143,14 @@ public class GameCore : MonoBehaviour
     }
 
     public void onTouchGhost(GameObject o) {
-        if(flagPowerPill) {
+        Ghost ghostScript = o.GetComponent<Ghost>();
+        if(ghostScript != null) { if(ghostScript.flagDie) { return ; } }
 
+        if(flagPowerPill) {
+            o.GetComponent<Ghost>().flagDie = true;
+            o.GetComponent<Animator>().Play("Face Layer.GhostBlueDie");
+            addScore(300);
+            Invoke("stopPowerPelletMode", 5.0f);
         }
         else {
             var PlayerPosition = PacStudent.transform.position;
@@ -151,6 +159,9 @@ public class GameCore : MonoBehaviour
             Destroy(hearts[2]);
             pacStudentController.setupTransmit(playerInitPosition);
 
+            if(health_point == 0) {
+                onPasStudentDie();
+            }
 
         }
     }
@@ -158,6 +169,10 @@ public class GameCore : MonoBehaviour
     public void addScore(int value) {
         // Debug.Log($"addScore {value} {Time.time}");
         score += value;
+    }
+
+    void onPasStudentDie() {
+        Debug.Log("TODO!");
     }
 
     void setupFace(String ghostName, String faceName, bool flagAbsolute = false, String layerName = "Face Layer") {
@@ -209,7 +224,7 @@ public class GameCore : MonoBehaviour
 
         backgroundPlayer.Stop();
         backgroundPlayer.clip = backgroundSound;
-        backgroundPlayer.Play(0);
+        backgroundPlayer.Play();
 
         setupGhosts("");
 
