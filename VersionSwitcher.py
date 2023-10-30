@@ -26,3 +26,4 @@ with open('ProjectSettings\\ProjectVersion.txt', 'w') as file_handle:
     else:
         file_handle.write(v202302)
 
+print(f"Switched to version: " + current_version)
